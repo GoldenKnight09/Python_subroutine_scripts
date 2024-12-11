@@ -94,4 +94,4 @@ def PLS_CV_main():
     pass
 
 if __name__ == '__main__':
-    main()
+    PLS_CV_main()

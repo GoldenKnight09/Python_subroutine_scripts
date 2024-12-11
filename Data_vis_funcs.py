@@ -59,4 +59,4 @@ def Data_vis_main():
     pass
 
 if __name__ == '__main__':
-    main()
+    Data_vis_main()
