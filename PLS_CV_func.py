@@ -90,7 +90,7 @@ def PLS_CV(factor_list,
             X_valid_trans,
             y_valid]
 
-def main():
+def PLS_CV_main():
     pass
 
 if __name__ == '__main__':

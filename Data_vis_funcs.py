@@ -55,7 +55,7 @@ def hist_plot(input_data, response_col, bins = 30):
     plt.ylabel('Count')
     plt.show()
     
-def main():
+def Data_vis_main():
     pass
 
 if __name__ == '__main__':
