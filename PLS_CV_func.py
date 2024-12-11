@@ -6,7 +6,7 @@ Created on Tue Dec 10 09:56:31 2024
 """
 
 from sklearn.model_selection import train_test_split, KFold, cross_val_score
-from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler
+from sklearn.preprocessing import StandardScaler, RobustScaler
 from sklearn.pipeline import Pipeline
 from sklearn.cross_decomposition import PLSRegression
 
@@ -29,9 +29,9 @@ def PLS_CV(factor_list,
         model_data: dataframe of input data (contains both factors & response(s) columns)
         response_var: string that is the (column) name of the response to be used for the transformation
         scaler: string that specifies the factor scaling method to be used; options are:
-            minmax: uses MinMaxScaler() (minimum & maximum extremes) to scale the input data
             standard: uses StandardScaler() (removes the mean & scales to unit variance) to scale the input data
             robust: uses RobustScaler() (interquartile range) to scale the input data
+            none: does not scale the data (for when the data are preprocessed or this function is part of a pipeline)
         split_test_size: fraction of the data in the validation data set
         relative_improvement_tol: tolerance ratio for improvement between subsequent latent variables
         max_number_of_comps: maximum number of potential latent variables to fit
@@ -52,15 +52,18 @@ def PLS_CV(factor_list,
                                                           test_size = split_test_size,
                                                           random_state = split_random_state,
                                                           shuffle = True)
-    if scaler == 'minmax':
-        pipe = Pipeline(steps = [('scaler',MinMaxScaler())])
     if scaler == 'standard':
         pipe = Pipeline(steps = [('scaler',StandardScaler())])
     if scaler == 'robust':
         pipe = Pipeline(steps = [('scaler',RobustScaler())])
-    pipe.fit(X_train, y_train)
-    X_train_scaled = pipe.transform(X_train)
-    X_valid_scaled = pipe.transform(X_valid)
+    if scaler == 'none':
+        # pass split arrays of data through to PLS without scaling
+        X_train_scaled = X_train
+        X_valid_scaled = X_valid
+    if scaler != 'none':
+        pipe.fit(X_train, y_train)
+        X_train_scaled = pipe.transform(X_train)
+        X_valid_scaled = pipe.transform(X_valid)
     relative_improvement = 1 # dummy initial value
     n_comps = 1
     CV_results = {}
@@ -90,8 +93,8 @@ def PLS_CV(factor_list,
             X_valid_trans,
             y_valid]
 
-def PLS_CV_main():
+def main_PLS_CV():
     pass
 
 if __name__ == '__main__':
-    PLS_CV_main()
+    main_PLS_CV()
