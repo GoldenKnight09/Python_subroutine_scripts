@@ -9,6 +9,50 @@ from sklearn.model_selection import train_test_split, KFold, cross_val_score
 from sklearn.preprocessing import StandardScaler, RobustScaler
 from sklearn.pipeline import Pipeline
 from sklearn.cross_decomposition import PLSRegression
+from datetime import datetime
+from pickle import dump
+
+def PLS_pickle(scaler_pipe,
+               pls_results,
+               response_var,
+               results_directory,
+               results_file_name):
+    '''
+    Function for pickling PLS results;
+    runs as an optional subroutine of main PLC_CV function
+    
+    Inputs
+    ------
+    scaler_pipe: pipeline used for scaling; 'none' if no scaling
+    pls_results: partial least squares transformation results
+    response_var: response variable fit by pls; used for naming files
+    results_directory: director to save files to; defaults to create new directory 'PLS_results'
+    results_file_name: file name to use when saving the files (example: PLS_({response_var})_({results_file_name}))
+
+    Returns
+    -------
+    None.
+
+    '''
+    if results_directory == 'default':
+        folder_name = 'PLS_results'
+    else:
+        folder_name = results_directory
+    if results_file_name == 'default':
+        timestamp = datetime.now().strftime('%d-%m-%y;%H-%M-%S')
+        file_name = timestamp
+    else:
+        file_name = results_file_name
+    if scaler_pipe != 'none':
+        pipe_filename = f'{folder_name}/pipe_scaling({response_var})_({file_name}).pkl'
+        with open(pipe_filename, 'wb') as pipe_file:
+            dump(scaler_pipe, pipe_file)
+        print('Scaling pipeline saved successfully.')
+    pls_filename = f'{folder_name}/pls({response_var})_({file_name}).pkl'
+    with open(pls_filename, 'wb') as pls_file:
+        dump(pls_results, pls_file)
+    print('PLS transformation results saved successfully.')
+    
 
 def PLS_CV(factor_list,
            response_list,
@@ -19,7 +63,10 @@ def PLS_CV(factor_list,
            relative_improvement_tol = 0.005, # ratio of (n-(n-1))/n scores for PLS model fits
            max_number_of_comps = 20, # max number of components to fit
            split_random_state = 17,
-           cv_random_state = 17):
+           cv_random_state = 17,
+           save_results = False,
+           results_directory = 'default',
+           results_file_name = 'default'):
     '''
     This function is used to transform and input dataframe using partial least squares
     It also splits the input data into training & validation sets
@@ -37,6 +84,9 @@ def PLS_CV(factor_list,
         max_number_of_comps: maximum number of potential latent variables to fit
         split_random_state: random state used for train_test_split
         cv_random_state: random state used for cross-validation step to determine the number of latent variables
+        save_results: whether or not to pickle scaling pipeline & PLS tranformation results (default = False)
+        results_directory: director to save files to; defaults to create new directory 'PLS_results'
+        results_file_name: file name to use when saving the files (example: PLS_({response_var})_({results_file_name}))
     Outputs:
         CV_results: dictionary of raw cross-validation results for each latent variable
         response_num_comps: number of latent variables in the transformation
@@ -86,6 +136,14 @@ def PLS_CV(factor_list,
                         scale = False)
     X_train_trans, _ = pls.fit_transform(X_train_scaled, y_train)
     X_valid_trans = pls.transform(X_valid_scaled)
+    if save_results == True:
+        if scaler == 'none':
+            pipe = 'none'
+        PLS_pickle(pipe,
+                   pls,
+                   response_var,
+                   results_directory,
+                   results_file_name)
     return [CV_results,
             response_num_comps,
             X_train_trans,
