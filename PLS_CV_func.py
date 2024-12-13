@@ -27,7 +27,7 @@ def PLS_pickle(scaler_pipe,
     pls_results: partial least squares transformation results
     response_var: response variable fit by pls; used for naming files
     results_directory: director to save files to; defaults to create new directory 'PLS_results'
-    results_file_name: file name to use when saving the files (example: PLS_({response_var})_({results_file_name}))
+    results_file_name: file name to use when saving the files (example: PLS_({response_var})_({results_file_name})); default is timestamp
 
     Returns
     -------
@@ -86,7 +86,7 @@ def PLS_CV(factor_list,
         cv_random_state: random state used for cross-validation step to determine the number of latent variables
         save_results: whether or not to pickle scaling pipeline & PLS tranformation results (default = False)
         results_directory: director to save files to; defaults to create new directory 'PLS_results'
-        results_file_name: file name to use when saving the files (example: PLS_({response_var})_({results_file_name}))
+        results_file_name: file name to use when saving the files (example: PLS_({response_var})_({results_file_name})); default is timestamp
     Outputs:
         CV_results: dictionary of raw cross-validation results for each latent variable
         response_num_comps: number of latent variables in the transformation
